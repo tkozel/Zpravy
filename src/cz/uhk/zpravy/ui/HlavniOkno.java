@@ -1,10 +1,17 @@
 package cz.uhk.zpravy.ui;
 
 import java.awt.BorderLayout;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
@@ -66,10 +73,49 @@ public class HlavniOkno extends JFrame {
 		labText = new JLabel();
 		add(labText,BorderLayout.SOUTH);
 		
-		//setSize(800, 600);
+		tb.addSeparator();
+		
+		JButton btNacist = new JButton("Naèíst");
+		tb.add(btNacist);
+		btNacist.addActionListener((e)->nacist());
+		
+		JButton btUlozit = new JButton("Uložit");
+		tb.add(btUlozit);
+		btUlozit.addActionListener((e)->ulozit());
+		
+		
 		pack();
 	}
 	
+	private void ulozit() {
+		try {
+			PrintWriter out = new PrintWriter(new FileOutputStream("zpravy.csv"));
+			for(Zprava z : zasobnikZprav.getZpravy()) {
+				out.printf("%s;%d\n", z.getText(), z.getRychlost());
+			}
+			out.close();
+		} catch (FileNotFoundException e) {
+			JOptionPane.showMessageDialog(this, "Chyba:"+e.getLocalizedMessage());
+		}
+	}
+
+	private void nacist() {
+		try {
+			BufferedReader in = new BufferedReader(new FileReader("zpravy.csv"));
+			zasobnikZprav.getZpravy().clear();
+			String radek;
+			while ((radek = in.readLine()) != null) {
+				//rozdelit radek podle ;
+				String[] polozky = radek.split(";");
+				Zprava z = new Zprava(polozky[0], Integer.valueOf(polozky[1]));
+				zasobnikZprav.pridat(z);
+			}
+			model.fireTableDataChanged();
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(this, "Chyba:"+e.getLocalizedMessage());
+		}
+	}
+
 	private void spustitAnimaci() {
 		int index = tabZpravy.getSelectedRow();
 		
