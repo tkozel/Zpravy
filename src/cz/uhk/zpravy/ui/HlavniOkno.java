@@ -39,6 +39,13 @@ public class HlavniOkno extends JFrame {
 		
 		JButton btPridat = new JButton("Pøidat");
 		tb.add(btPridat);
+		btPridat.addActionListener( (event)->{
+			ZpravaDlg dlg = new ZpravaDlg(HlavniOkno.this);
+			dlg.setVisible(true); //cekame na zavreni dialogu
+			Zprava z = dlg.getZprava();  //TODO muze vzniknout vyjimka kvuli chybejici rychlosti
+			zasobnikZprav.pridat(z);
+			model.fireTableDataChanged();
+		});
 		
 		JButton btSmazat = new JButton("Smazat");
 		tb.add(btSmazat);
