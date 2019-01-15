@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
@@ -17,6 +18,8 @@ public class HlavniOkno extends JFrame {
 	private ZasobnikZprav zasobnikZprav;
 	private ZpravyTableModel model;
 	private JTable tabZpravy;
+	protected JLabel labText;
+	private MojeVlakno vlakno;
 
 	public HlavniOkno() {
 		super("Animace zprav");
@@ -51,10 +54,26 @@ public class HlavniOkno extends JFrame {
 			}
 		});
 		
+		btAnimace.addActionListener( (event) -> spustitAnimaci() );
+		
+		labText = new JLabel();
+		add(labText,BorderLayout.SOUTH);
+		
 		//setSize(800, 600);
 		pack();
 	}
 	
+	private void spustitAnimaci() {
+		int index = tabZpravy.getSelectedRow();
+		
+		if (index != -1) {
+			if (vlakno != null) vlakno.konec();
+			vlakno = new MojeVlakno(zasobnikZprav.ziskat(index));
+			vlakno.start();
+		}
+		
+	}
+
 	private void initData() {
 		zasobnikZprav = new ZasobnikZprav();
 		
@@ -74,4 +93,32 @@ public class HlavniOkno extends JFrame {
 		SwingUtilities.invokeLater( ()->new HlavniOkno().setVisible(true) );
 	}
 
+	class MojeVlakno extends Thread {
+		boolean stop = false;
+		Zprava zprava;
+		
+		public MojeVlakno(Zprava z) {
+			zprava = z;
+		}
+		
+		void konec() {
+			stop =true;
+		}
+		
+		@Override
+		public void run() {
+			
+			String animText = zprava.getText() + "                         ";
+			while (!stop) {
+				labText.setText(animText);
+				animText = animText.substring(1)+animText.charAt(0);
+				try {
+					Thread.sleep(zprava.getRychlost());
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
 }
