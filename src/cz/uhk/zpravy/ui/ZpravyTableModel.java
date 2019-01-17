@@ -44,5 +44,18 @@ public class ZpravyTableModel extends AbstractTableModel {
 		return null;
 	}
 
+	@Override
+	public Class<?> getColumnClass(int columnIndex) {
+		if (columnIndex == 1) return Integer.class;
+		else return super.getColumnClass(columnIndex);
+	}
+	
+	@Override
+	public String getColumnName(int column) {
+		switch (column) {
+		case 0: return "Text zprávy";
+		default: return "Prodleva";
+		}
+	}
 
 }
